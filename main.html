@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soccer Field</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #789772;
+  }
+  
+  .container {
+    position: relative;
+    width: 75vw;
+    height: 80vh;
+    background-image: url('https://static.vecteezy.com/system/resources/previews/005/961/248/non_2x/top-view-of-green-football-pitch-or-soccer-field-vector.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: 2px solid #789772;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  }
+  
+  .marker {
+    position: absolute;
+    width: 30px; /* Adjusted width */
+    height: 30px; /* Adjusted height */
+    border-radius: 50%;
+    background-color: red; /* default color */
+    cursor: pointer;
+    z-index: 1; /* Ensure markers are above textbox container */
+  }
+  
+  .marker.blue {
+    background-color: blue;
+  }
+
+  .textbox-container {
+    position: absolute;
+    background-color: rgba(192, 192, 192, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 999;
+  }
+
+  .textbox-container input[type="text"] {
+    width: 200px;
+    padding: 5px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    border: none;
+    font-size: 14px;
+  }
+
+  .textbox-container button {
+    padding: 8px 15px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .save-btn {
+    background-color: green;
+    color: white;
+  }
+
+  .cancel-btn {
+    background-color: red;
+    color: white;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Red team markers -->
+    <div class="marker" style="top: 50%; left: 10%;"></div>
+    <div class="marker" style="top: 20%; left: 25%;"></div>
+    <div class="marker" style="top: 40%; left: 25%;"></div>
+    <div class="marker" style="top: 60%; left: 25%;"></div>
+    <div class="marker" style="top: 80%; left: 25%;"></div>
+    <div class="marker" style="top: 25%; left: 35%;"></div>
+    <div class="marker" style="top: 50%; left: 35%;"></div>
+    <div class="marker" style="top: 75%; left: 35%;"></div>
+    <div class="marker" style="top: 25%; left: 45%;"></div>
+    <div class="marker" style="top: 50%; left: 45%;"></div>
+    <div class="marker" style="top: 75%; left: 45%;"></div>
+    <!-- Blue team markers -->
+    <div class="marker blue" style="top: 50%; right: 10%;"></div>
+    <div class="marker blue" style="top: 20%; right: 25%;"></div>
+    <div class="marker blue" style="top: 40%; right: 25%;"></div>
+    <div class="marker blue" style="top: 60%; right: 25%;"></div>
+    <div class="marker blue" style="top: 80%; right: 25%;"></div>
+    <div class="marker blue" style="top: 25%; right: 35%;"></div>
+    <div class="marker blue" style="top: 50%; right: 35%;"></div>
+    <div class="marker blue" style="top: 75%; right: 35%;"></div>
+    <div class="marker blue" style="top: 25%; right: 45%;"></div>
+    <div class="marker blue" style="top: 50%; right: 45%;"></div>
+    <div class="marker blue" style="top: 75%; right: 45%;"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const container = document.querySelector('.container');
+  const markers = document.querySelectorAll('.marker');
+  
+  markers.forEach(marker => {
+    let isDragging = false;
+    
+    marker.addEventListener('mousedown', function(event) {
+      if (event.button !== 0) return; // Ignore if not left-click
+      isDragging = true;
+      event.preventDefault(); // Prevent text selection
+      
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+    
+    function onMouseMove(event) {
+      if (!isDragging) return;
+      
+      const containerRect = container.getBoundingClientRect();
+      
+      let x = event.clientX - containerRect.left - marker.offsetWidth / 2;
+      let y = event.clientY - containerRect.top - marker.offsetHeight / 2;
+      
+      x = Math.max(0, Math.min(containerRect.width - marker.offsetWidth, x));
+      y = Math.max(0, Math.min(containerRect.height - marker.offsetHeight, y));
+      
+      marker.style.left = x + 'px';
+      marker.style.top = y + 'px';
+    }
+    
+    function onMouseUp(event) {
+      if (!isDragging) return;
+      
+      isDragging = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    }
+
+    marker.addEventListener('contextmenu', function(event) {
+      event.preventDefault();
+      const containerRect = container.getBoundingClientRect();
+      const textboxContainer = document.createElement('div');
+      textboxContainer.className = 'textbox-container';
+      textboxContainer.style.left = (event.clientX - containerRect.left) + 'px';
+      textboxContainer.style.top = (event.clientY - containerRect.top) + 'px';
+
+      const textBox = document.createElement('input');
+      textBox.type = 'text';
+      textBox.placeholder = 'Enter text';
+      textboxContainer.appendChild(textBox);
+
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'save-btn';
+      saveBtn.textContent = 'Save';
+      saveBtn.addEventListener('click', function() {
+        marker.textContent = textBox.value;
+        textboxContainer.remove();
+      });
+      textboxContainer.appendChild(saveBtn);
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'cancel-btn';
+      cancelBtn.textContent = 'Cancel';
+      cancelBtn.addEventListener('click', function() {
+        textboxContainer.remove();
+      });
+      textboxContainer.appendChild(cancelBtn);
+
+      container.appendChild(textboxContainer);
+
+      textBox.focus();
+    });
+  });
+});
+</script>
+
+</body>
+</html>
